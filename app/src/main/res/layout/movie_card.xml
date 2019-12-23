@@ -8,8 +8,8 @@
     android:layout_height="wrap_content">
 
     <ImageView
-        android:layout_width="60dp"
-        android:layout_height="60dp"
+        android:layout_width="100dp"
+        android:layout_height="100dp"
         app:srcCompat="@drawable/not_found"
         android:id="@+id/imageView"
         app:layout_constraintTop_toTopOf="parent"
@@ -23,6 +23,7 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:id="@+id/titleTextView"
+        android:textSize="20sp"
         app:layout_constraintTop_toTopOf="parent"
         android:layout_marginTop="8dp"
         app:layout_constraintStart_toEndOf="@+id/imageView"
@@ -33,19 +34,22 @@
         android:id="@+id/releaseDateTextView"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
         android:layout_marginTop="8dp"
-        android:layout_marginStart="15dp"
         android:text="Release Date"
-        app:layout_constraintStart_toEndOf="@+id/titleTextView"
+        app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
 
     <TextView
         android:id="@+id/descriptionTextView"
-        android:layout_width="335dp"
-        android:layout_height="38dp"
+        android:layout_width="284dp"
+        android:layout_height="63dp"
+        android:layout_marginStart="2dp"
         android:text="Description"
-        android:layout_marginStart="4dp"
+        android:ellipsize="end"
+        android:maxLines="3"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintStart_toEndOf="@+id/imageView"
-        app:layout_constraintTop_toBottomOf="@+id/titleTextView" />
+        app:layout_constraintTop_toBottomOf="@+id/titleTextView"
+        app:layout_constraintVertical_bias="0.555" />
 </androidx.constraintlayout.widget.ConstraintLayout>

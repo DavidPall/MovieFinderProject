@@ -11,11 +11,13 @@ import androidx.constraintlayout.widget.ConstraintLayout
 import androidx.recyclerview.widget.RecyclerView
 import com.example.moviefinderproject.Model.Movie
 import com.example.moviefinderproject.R
+import com.example.moviefinderproject.View.DetailFragment
+import com.example.moviefinderproject.View.MainActivity
 import com.squareup.picasso.Picasso
 import org.w3c.dom.Text
 
 
-class PaginationAdapter(val context: Context, val sharedPreferences: SharedPreferences?) :
+class PaginationAdapter(val context: Context) :
     RecyclerView.Adapter<PaginationAdapter.ViewHolder>() {
 
     private val ITEM = 0
@@ -54,17 +56,20 @@ class PaginationAdapter(val context: Context, val sharedPreferences: SharedPrefe
     override fun onBindViewHolder(holder: ViewHolder, position: Int) {
         holder.title.text = movieResults[position].movieName
         holder.releaseDate.text = movieResults[position].movieReleaseDate
-//        holder.item.setOnClickListener {
-//            val detailsDialogFragment =
-//                DetailsDialogFragment(movieResults[position], sharedPreferences)
-//            detailsDialogFragment.show((context as MainActivity).supportFragmentManager, "PaginationAdapter")
-//        }
+        holder.description.text = movieResults[position].movieDetail
+
         try {
             Picasso.with(context)
                 .load("https://image.tmdb.org/t/p/w500/${movieResults[position].moviePoster}")
                 .into(holder.poster)
         } catch (e: Exception) {
             holder.poster.setImageDrawable(null)
+        }
+
+        holder.item.setOnClickListener {
+            val detailsDialogFragment =
+                DetailFragment(movieResults[position])
+            detailsDialogFragment.show((context as MainActivity).supportFragmentManager, "PaginationAdapter")
         }
     }
 
