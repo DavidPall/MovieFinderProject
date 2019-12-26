@@ -8,16 +8,19 @@ import android.view.ViewGroup
 import android.view.WindowManager
 import android.webkit.WebView
 import android.webkit.WebViewClient
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
-import android.widget.Toast
+import android.widget.*
 import androidx.fragment.app.DialogFragment
+import androidx.recyclerview.widget.LinearLayoutManager
+import androidx.recyclerview.widget.RecyclerView
 import com.example.moviefinderproject.Model.API.GetMovieList
+import com.example.moviefinderproject.Model.API.Respons
 import com.example.moviefinderproject.Model.API.Respons_trailer
 import com.example.moviefinderproject.Model.API.RetrofitMoviesClient
 import com.example.moviefinderproject.Model.Movie
+import com.example.moviefinderproject.Model.userName
+import com.example.moviefinderproject.Presenter.SimilarMovieAdapter
 import com.example.moviefinderproject.R
+import com.google.firebase.database.*
 import com.squareup.picasso.Picasso
 import kotlinx.android.synthetic.main.detail_fragment.*
 import retrofit2.Call
@@ -26,7 +29,11 @@ import retrofit2.Response
 
 class DetailFragment(private val movie: Movie) : DialogFragment(){
 
+    private lateinit var database: DatabaseReference
+    private var isFavorite: Boolean = false
 
+    private var mRecyclerView: RecyclerView? = null
+    private var mAdapter: RecyclerView.Adapter<*>? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,6 +43,8 @@ class DetailFragment(private val movie: Movie) : DialogFragment(){
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View? {
         val view: View = inflater.inflate(R.layout.detail_fragment, container, false)
+
+        database = FirebaseDatabase.getInstance().reference
 
         val closeWindow : ImageButton = view.findViewById(R.id.close_btn)
         closeWindow.setOnClickListener { dismiss() }
@@ -58,7 +67,51 @@ class DetailFragment(private val movie: Movie) : DialogFragment(){
             poster.setImageDrawable(null)
         }
 
-        favButton.setBackgroundResource(R.drawable.ic_favorite_full)
+        favButton.setBackgroundResource(R.drawable.ic_favorite_empty)
+
+
+        val myRef = database.child("Users").child(userName).child("Movies")
+
+        myRef.addValueEventListener(object: ValueEventListener{
+            override fun onCancelled(p0: DatabaseError) {
+
+            }
+
+            override fun onDataChange(dataSnapshot: DataSnapshot) {
+                for (ds in dataSnapshot.children){
+                    val current = ds.getValue(Movie::class.java)
+                    if(movie.movieId == current?.movieId){
+                        favButton.setBackgroundResource(R.drawable.ic_favorite_full)
+                        isFavorite = true
+                    }
+                }
+            }
+
+        })
+
+
+
+
+        favButton.setOnClickListener {
+            if(!isFavorite){
+
+                database.child("Users").child(userName).child("Movies").child(movie.movieId.toString()).setValue(movie)
+                Toast.makeText(context,"Movie added to the favourites.", Toast.LENGTH_SHORT).show()
+
+                favButton.setBackgroundResource(R.drawable.ic_favorite_full)
+                isFavorite = true
+            } else {
+
+                database.child("Users").child(userName).child("Movies").child(movie.movieId.toString()).removeValue()
+                Toast.makeText(context,"Movie removed from the favourites.", Toast.LENGTH_SHORT).show()
+
+                favButton.setBackgroundResource(R.drawable.ic_favorite_empty)
+                isFavorite = false
+            }
+        }
+
+
+
 
         Log.i("Movie Name",movie.movieName)
 
@@ -91,7 +144,52 @@ class DetailFragment(private val movie: Movie) : DialogFragment(){
         })
 
 
+        var similarMovies : ArrayList<Movie> = loadSimilar()
+
+        mRecyclerView = view.findViewById(R.id.similar_RecyclerView)
+        mRecyclerView!!.layoutManager = LinearLayoutManager(this.context,LinearLayoutManager.HORIZONTAL,false)
+
+        mAdapter = SimilarMovieAdapter(similarMovies,requireContext())
+        mRecyclerView!!.adapter = mAdapter
+
         return view
+    }
+
+    private fun loadSimilar(): ArrayList<Movie> {
+
+
+
+        var similarMovies : ArrayList<Movie> = ArrayList()
+
+        val service = RetrofitMoviesClient.retrofitInstance?.create(GetMovieList::class.java)
+        val dataFlight = service?.getSimilar(movie.movieId, 1)
+
+        dataFlight?.enqueue(object : Callback<Respons> {
+            override fun onFailure(call: Call<Respons>, t: Throwable) {
+                Toast.makeText(context, "Error please try again", Toast.LENGTH_LONG).show()
+            }
+
+            override fun onResponse(call: Call<Respons>, response: Response<Respons>) {
+                val body = response.body()
+
+                for (element in body!!.results) {
+                    similarMovies.add(
+                        Movie(
+                            element.id,
+                            element.title,
+                            element.original_title,
+                            element.overview,
+                            element.poster_path,
+                            element.release_date
+                        )
+                    )
+                }
+            }
+
+        })
+
+        return similarMovies
+
     }
 
 
