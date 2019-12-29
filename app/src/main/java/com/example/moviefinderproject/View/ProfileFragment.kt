@@ -7,7 +7,10 @@ import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import android.widget.Button
+import android.widget.TextView
 import androidx.fragment.app.Fragment
+import com.example.moviefinderproject.Model.userName
 import com.example.moviefinderproject.R
 
 /**
@@ -41,6 +44,22 @@ class ProfileFragment : Fragment(){
         Log.d(TAG,"onCreateView")
 
         val rootView = inflater.inflate(R.layout.profile_fragment,container,false)
+
+        val usermame_txt : TextView = rootView.findViewById(R.id.username_textView)
+        val signOut_btn : Button = rootView.findViewById(R.id.signOut_btn)
+        val changePass : Button = rootView.findViewById(R.id.changePass_btn)
+
+        changePass.setOnClickListener {
+            val changePassFragment = ChangePassFragment()
+            changePassFragment.show((context as MainActivity).supportFragmentManager, "Profile Fragment")
+        }
+
+        signOut_btn.setOnClickListener {
+            (activity as MainActivity).logOut()
+        }
+
+
+        usermame_txt.text = "Username: " + userName
 
 
         return rootView

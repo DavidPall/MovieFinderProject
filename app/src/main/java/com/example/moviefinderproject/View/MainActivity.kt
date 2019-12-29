@@ -1,10 +1,12 @@
 package com.example.moviefinderproject.View
 
 import android.content.Context
+import android.content.DialogInterface
 import android.content.Intent
 import android.content.SharedPreferences
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
+import androidx.appcompat.app.AlertDialog
 import androidx.fragment.app.Fragment
 import com.example.moviefinderproject.R
 import com.google.android.material.bottomnavigation.BottomNavigationView
@@ -68,5 +70,31 @@ class MainActivity : AppCompatActivity() {
                 .replace(R.id.fragmentContainer, fragment, tag)
                 .commit()
         }
+    }
+
+    override fun onBackPressed() {
+
+    }
+
+    fun logOut(){
+        val dialogBuilder = AlertDialog.Builder(this)
+
+        dialogBuilder.setMessage("Are you sure you want to sign out?")
+
+            .setCancelable(false)
+
+            .setPositiveButton("Yes"){dialogInterface, i ->
+                val intent = Intent(this@MainActivity,
+                    LoginActivity::class.java)
+                startActivity(intent)
+            }
+
+            .setNegativeButton("No",DialogInterface.OnClickListener{
+                dialog, id -> dialog.cancel()
+            })
+
+        val alert = dialogBuilder.create()
+        alert.setTitle("Sign out")
+        alert.show()
     }
 }

@@ -1,10 +1,12 @@
 package com.example.moviefinderproject.View
 
+import android.content.DialogInterface
 import android.content.Intent
 import androidx.appcompat.app.AppCompatActivity
 import android.os.Bundle
 import android.text.TextUtils
 import android.widget.Toast
+import androidx.appcompat.app.AlertDialog
 import com.example.moviefinderproject.Model.User
 import com.example.moviefinderproject.Model.userName
 import com.example.moviefinderproject.R
@@ -92,5 +94,26 @@ class LoginActivity : AppCompatActivity() {
         result = byteArrayToHexString(md5HashBytes)
         return result
     }
+
+    override fun onBackPressed() {
+        val dialogBuilder = AlertDialog.Builder(this)
+
+        dialogBuilder.setMessage("Are you sure you want to exit?")
+
+            .setCancelable(false)
+
+            .setPositiveButton("Yes"){dialogInterface, i ->
+                finishAffinity()
+            }
+
+            .setNegativeButton("No", DialogInterface.OnClickListener{
+                    dialog, id -> dialog.cancel()
+            })
+
+        val alert = dialogBuilder.create()
+        alert.setTitle("Sign out")
+        alert.show()
+    }
 }
+
 
